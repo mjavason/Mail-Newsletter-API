@@ -28,7 +28,7 @@ let allUsers: string[] = [
 ];
 
 // Email account setup and login. You need to pass in your email credentials and use this app to control it.
-const transporter = nodeMailer.createTransport({
+export const transporter = nodeMailer.createTransport({
   host: 'smtp.gmail.com',
   port: 465,
   secure: true,
@@ -38,7 +38,7 @@ const transporter = nodeMailer.createTransport({
   },
 });
 
-async function renderMailTemplate(templatePath: string, data: object) {
+export async function renderMailTemplate(templatePath: string, data: object) {
   // Load the email template
   const emailTemplate = fs.readFileSync(templatePath, 'utf-8');
 
@@ -46,7 +46,7 @@ async function renderMailTemplate(templatePath: string, data: object) {
   return await handlebars.compile(emailTemplate)(data);
 }
 
-async function sendMail(
+export async function sendMail(
   recipientEmail: string,
   mailHtmlBody: string | any,
   mailSubject: string
