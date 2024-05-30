@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import 'express-async-errors';
 import cors from 'cors';
-import axios, { all } from 'axios';
+import axios from 'axios';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import handlebars from 'handlebars';
@@ -18,7 +18,7 @@ dotenv.config({ path: './.env' });
 //keys and configs
 const PORT = process.env.PORT || 3000;
 const baseURL = 'https://httpbin.org';
-const SITE_LINK = process.env.SITE_LINK || 'localhost:3000';
+const SITE_LINK = process.env.SITE_LINK || 'http://localhost:3000';
 const MAIL_ADDRESS = process.env.MAIL_ADDRESS || 'michaelorji@mail.com';
 const MAIL_PASSWORD = process.env.MAIL_PASSWORD || 'xxxx';
 let allUsers: string[] = [
@@ -93,14 +93,14 @@ app.get('/unsubscribe/:email', (req: Request, res: Response) => {
 
   for (let i = 0; i < allUsers.length; i++) {
     if (allUsers[i] == email) {
-      allUsers.splice(i);
-      res
+      allUsers.slice(i);
+      return res
         .status(200)
         .send({ success: true, message: 'Unsubscribed successfully' });
     }
   }
 
-  res
+  return res
     .status(404)
     .send({ success: false, message: 'Email not found in database' });
 });
@@ -110,11 +110,15 @@ app.post('/subscribe/:email', (req: Request, res: Response) => {
 
   for (let i = 0; i < allUsers.length; i++) {
     if (allUsers[i] == email) {
-      res.status(400).send({ success: false, message: 'Already registered' });
+      return res
+        .status(400)
+        .send({ success: false, message: 'Already registered' });
     }
   }
 
-  res.status(404).send({ success: true, message: 'Subscribed successfully' });
+  return res
+    .status(404)
+    .send({ success: true, message: 'Subscribed successfully' });
 });
 
 //#region Server setup
@@ -123,13 +127,16 @@ app.post('/subscribe/:email', (req: Request, res: Response) => {
 app.get('/api', async (req: Request, res: Response) => {
   const result = await axios.get(baseURL);
   console.log(result.status);
-  res.send({ message: 'Demo API called (httpbin.org)', data: result.status });
+  return res.send({
+    message: 'Demo API called (httpbin.org)',
+    data: result.status,
+  });
 });
 
 //default message
-app.get('/', (req: Request, res: Response) =>
-  res.send({ message: 'API is Live!' })
-);
+app.get('/', (req: Request, res: Response) => {
+  return res.send({ message: 'API is Live!' });
+});
 
 app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
