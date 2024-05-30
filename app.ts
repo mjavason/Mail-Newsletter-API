@@ -73,7 +73,7 @@ app.post('/send-newsletter', async (req: Request, res: Response) => {
     const data = {
       title,
       body,
-      unsubscribeLink: `${SITE_LINK}/newsletter-subscription/unsubscribe/${allUsers[i]}`,
+      unsubscribeLink: `${SITE_LINK}/unsubscribe/${allUsers[i]}`,
     };
     const templatePath = 'base.html';
     const compiledTemplate = await renderMailTemplate(templatePath, data);
@@ -86,6 +86,35 @@ app.post('/send-newsletter', async (req: Request, res: Response) => {
     success: true,
     message: 'Newsletter sent to all subscribers successfully',
   });
+});
+
+app.get('/unsubscribe/:email', (req: Request, res: Response) => {
+  const email = req.params.email;
+
+  for (let i = 0; i < allUsers.length; i++) {
+    if (allUsers[i] == email) {
+      allUsers.splice(i);
+      res
+        .status(200)
+        .send({ success: true, message: 'Unsubscribed successfully' });
+    }
+  }
+
+  res
+    .status(404)
+    .send({ success: false, message: 'Email not found in database' });
+});
+
+app.post('/subscribe/:email', (req: Request, res: Response) => {
+  const email = req.params.email;
+
+  for (let i = 0; i < allUsers.length; i++) {
+    if (allUsers[i] == email) {
+      res.status(400).send({ success: false, message: 'Already registered' });
+    }
+  }
+
+  res.status(404).send({ success: true, message: 'Subscribed successfully' });
 });
 
 //#region Server setup
